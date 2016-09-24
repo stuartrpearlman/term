@@ -81,6 +81,36 @@ func TestTermRestore(t *testing.T) {
 	}
 }
 
+func TestTermGetWinsize(t *testing.T) {
+	tt := opendev(t)
+	defer tt.Close()
+	_, _, _, _, err := tt.GetWinsize()
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTermSetWinsize(t *testing.T) {
+	tt := opendev(t)
+	defer tt.Close()
+
+        const r = 24
+        const c = 80
+	if err := tt.SetWinsize(r, c, 0, 0); err != nil {
+		t.Fatalf("SetWinsize: %v", err)
+	}
+	row, col, _, _, err := tt.GetWinsize()
+	if err != nil {
+		t.Fatalf("GetWinsize: %v", err)
+	}
+	if row != r {
+		t.Errorf("GetWinsize: row: expected %d, got %d", r, row)
+	}
+	if col != c {
+		t.Errorf("GetWinsize: col: expected %d, got %d", c, col)
+	}
+}
+
 func opendev(t *testing.T) *Term {
 	_, pts, err := termios.Pty()
 	if err != nil {

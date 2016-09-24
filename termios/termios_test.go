@@ -153,6 +153,40 @@ func TestCfgetospeed(t *testing.T) {
 	}
 }
 
+func TestTiocgwinsz(t *testing.T) {
+	f := opendev(t)
+	defer f.Close()
+
+	_, err := Tiocgwinsz(f.Fd())
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTioswinsz(t *testing.T) {
+	f := opendev(t)
+	defer f.Close()
+
+	// Set window size.
+	ws1 := Winsize{24, 80, 0, 0}
+	err := Tiocswinsz(f.Fd(), &ws1)
+	if err != nil {
+		t.Fatalf("Tiocswinsz: %v", err)
+	}
+
+	// Get window size, make sure it's what we set.
+	ws2, err := Tiocgwinsz(f.Fd())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ws1.Row != ws2.Row {
+		t.Errorf("Tiocgwinsz: invalid Winsize.Row: expected %d, got %d", ws1.Row, ws2.Row)
+	}
+	if ws1.Col != ws2.Col {
+		t.Errorf("Tiocgwinsz: invalid Winsize.Col: expected %d, got %d", ws1.Col, ws2.Col)
+	}
+}
+
 func opendev(t *testing.T) *os.File {
 	_, pts, err := Pty()
 	if err != nil {

@@ -77,3 +77,18 @@ func (t *Term) Buffered() (int, error) {
 	err := termios.Tiocoutq(uintptr(t.fd), &n)
 	return n, err
 }
+
+// GetWinsize gets the window size.
+func (t *Term) GetWinsize() (row, col, xpixel, ypixel uint16, err error) {
+	ws, err := termios.Tiocgwinsz(uintptr(t.fd))
+	if err != nil {
+		return 0, 0, 0, 0, err
+	}
+	return ws.Row, ws.Col, ws.Xpixel, ws.Ypixel, err
+}
+
+// SetWinsize sets the window size.
+func (t *Term) SetWinsize(row, col, xpixel, ypixel uint16) error {
+	ws := termios.Winsize{row, col, xpixel, ypixel}
+	return termios.Tiocswinsz(uintptr(t.fd), &ws)
+}

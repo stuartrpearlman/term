@@ -44,3 +44,22 @@ func Cfmakeraw(attr *syscall.Termios) {
 	attr.Cc[syscall.VMIN] = 1
 	attr.Cc[syscall.VTIME] = 0
 }
+
+type Winsize struct {
+	Row    uint16
+	Col    uint16
+	Xpixel uint16
+	Ypixel uint16
+}
+
+// Tiocgwinsz returns the window size.
+func Tiocgwinsz(fd uintptr) (*Winsize, error) {
+	var ws Winsize
+	err := ioctl(fd, syscall.TIOCGWINSZ, uintptr(unsafe.Pointer(&ws)))
+	return &ws, err
+}
+
+// Tiocswinsz sets the window size.
+func Tiocswinsz(fd uintptr, value *Winsize) error {
+	return ioctl(fd, syscall.TIOCSWINSZ, uintptr(unsafe.Pointer(value)))
+}
